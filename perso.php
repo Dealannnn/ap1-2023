@@ -1,11 +1,16 @@
 <?php
 session_start();
-$query = "SELECT* FROM utilisateurs WHERE id = $id_utilisateur";
 ?>
 
 <html>
 <head> <link href="style.css" media="all" rel="stylesheet" type="text/css"/> </head>
-<body> </html>
+<body> 
+
+
+
+
+
+</html>
 <?php
 include '_conf.php';
 if ($_SESSION["type"] ==1) //si connexion en prof
@@ -17,21 +22,23 @@ if ($_SESSION["type"] ==1) //si connexion en prof
     <li><a href="perso.php">Profil</a></li>
     <li><a href="cr.php">Compte rendus</a></li>
     <li><a href="membres.php">Membres</a></li>
+    <li><a href="vu.php">Vu</a></li>
     </ul> </html> <?php
-    { 
-      if($connexion = mysqli_connect($serveurBDD,$userBDD,$mdpBDD,$nomBDD)){
-        $id=$_SESSION["id"];
-      $requete="Select * from utilisateur";
-      $resultat = mysqli_query($connexion, $requete);
-   
-       while($donnees = mysqli_fetch_assoc($resultat))
-    echo $donnees['nom']."-";
-    echo $donnees['age']."-";
-    echo $donnees['prenom']."-";
-    echo $donnees['telephone']."-";
-    echo $donnees['mail']."-";
+
+if ($connexion = mysqli_connect($serveurBDD, $userBDD, $mdpBDD, $nomBDD)) {
+  $id = $_SESSION["id"];
+  $requete = "SELECT * FROM UTILISATEUR ";
+  $resultat = mysqli_query($connexion, $requete);
+  while ($donnees = mysqli_fetch_assoc($resultat)) {
+  
+    //lien avec le nom des eleve pour voir les coordonnes le lien est et afficheperso.php
+    echo "nom: <a href='afficheperso.php?nom=" . $donnees['nom'] . "'>" . $donnees['nom'] . "</a><br>";
+    
+  
+    }
+  
   }
-}}
+  }
 else
   {
     ?>
@@ -41,19 +48,79 @@ else
     <li><a href="perso.php">Profil</a></li>
     <li><a href="cr.php">Compte rendus</a></li>
     <li><a href="ccr.php">Nouveau compte-rendu</a></li>
-    <li><a href="contact.php">Contacter</a></li>
-    </ul> </html> <?php
-   $requete="SELECT CR.* FROM CR,UTILISATEUR WHERE UTILISATEUR.num = CR.num_utilisateur AND UTILISATEUR.num=$_SESSION[id]";
-   $resultat = mysqli_query($connexion, $requete);
+    </ul>
+    
+    </html> 
+    
+    <?php
 
-    while($donnees = mysqli_fetch_assoc($resultat))
-    {
-      echo $donnees['id']."-";
-      echo $donnees['login']."-";
-      echo $donnees['prenom']."-";
-      echo $donnees['Age']."-";
-      echo $donnees['Classe']."-";
+
+if ($connexion = mysqli_connect($serveurBDD, $userBDD, $mdpBDD, $nomBDD)) {
+$id = $_SESSION["id"];
+$requete = "SELECT * FROM UTILISATEUR where UTILISATEUR.num=$_SESSION[id]";
+$resultat = mysqli_query($connexion, $requete);
+while ($donnees = mysqli_fetch_assoc($resultat)) {
+
+  $num= $donnees['num'];
+  $nom= $donnees['nom'];
+  $prenom= $donnees['prenom'];
+  $tel= $donnees['tel'];
+  $login= $donnees['login'];
+  $type= $donnees['type'];
+  $email= $donnees['email'];
+  $option= $donnees['option'];
+  $num_stage= $donnees['num_stage'];
+
+
+
+  }
+
+  //recupere les input de chaque colonne a mofi
+  if(isset($_POST['submit'])){
+    $newnom = addslashes($_POST['nom']);
+    $newprenom = addslashes($_POST['prenom']);
+    $newtel = addslashes($_POST['tel']);
+    $newlogin= addslashes($_POST['login']);
+    $newtype = addslashes($_POST['type']);
+    $newemail = addslashes($_POST['email']);
+    $newoption = addslashes($_POST['option']);
+    $requete = "UPDATE UTILISATEUR SET nom = '$newnom', prenom = '$newprenom', tel = '$newtel', login = '$newlogin', type = '$newtype', email = '$newemail', option = '$newoption'WHERE UTILISATEUR.num = $num";
+
+    if(mysqli_query($connexion, $requete)) {
+      echo "profil modifié avec succès.";
+      header("Location: perso.php ");
+    
+  } else {
+      echo "Erreur : " . mysqli_error($connexion);
+  }
+
     }
   }
+
 ?>
-TODO : AFFICHER LE PROFIL UTILISATEUR
+  <html>
+  
+
+    <FORM method="post" action="perso.php">
+    <div> nom : <input type="text" name="nom" value="<?php echo $nom; ?>"> <br>
+    <div> prénom : <input type="text" name="prenom" value="<?php echo $prenom; ?>"> <br>
+        <div> tel : <input type="text" name="tel" value="<?php echo $tel; ?>"> <br>
+        <div> login : <input type="text" name="login" value="<?php echo $login; ?>"> <br>
+        <div> type : <input type="text" name="type" value="<?php echo $type; ?>"> <br>
+        <div> email : <input type="text" name="email" value="<?php echo $email; ?>"> <br>
+        <div> option : <input type="text" name="option" value="<?php echo $option; ?>"> <br>
+
+    </div>
+    <br>
+
+</FORM>
+    
+    </html> 
+    <?php
+
+}
+
+    ?>
+
+
+
